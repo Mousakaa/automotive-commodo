@@ -11,21 +11,22 @@ use panic_halt as _; // panic handler
 use cortex_m_rt::entry;
 use stm32f4xx_hal as hal;
 
-use crate::hal::{pac, prelude::*};
+use crate::hal::pac;
 
 mod acquisition;
 mod data_transfer;
 
-fn init_input() -> pac::Peripherals {
-    let dp = pac::Peripherals::take()
-        .expect("Peripherals unavailable");
-    data_transfer::init(&dp);
-    acquisition::init(&dp);
-    return dp;
-}
+// fn init(dp: &mut Peripherals) {
+//     data_transfer::init(dp);
+//     acquisition::init(dp);
+// }
 
 #[entry]
 fn main() -> ! {
-    let dp = init_input();
+    let dp = pac::Peripherals::take().expect("Peripherals unavailable");
+    // init(&mut dp);
+
+    data_transfer::init(dp.GPIOA, dp.RCC, dp.USART2);
+
     loop {}
 }

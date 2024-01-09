@@ -12,4 +12,5 @@ cortex-m = "0.7.7"
 cortex-m-rt = "0.7.3"
 embedded-hal = "0.2.7"
 panic-halt = "0.2.0"
-stm32f4xx-hal = { version = "0.18.0", features = ["rt", "stm32f401"] }
+stm32f4xx-hal = { version = "0.18.0", features = ["rt", "stm32f401", "gpio-f401"] }
+uart = "0.1.2"
