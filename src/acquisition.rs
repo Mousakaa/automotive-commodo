@@ -1,4 +1,4 @@
-//! Demonstrate the use of a blocking `Delay` using the SYST (sysclock) timer.
+//! Manages the imput part of the software
 
 #![deny(unsafe_code)]
 #![allow(clippy::empty_loop)]
@@ -13,29 +13,79 @@ use stm32f4xx_hal as hal;
 
 use crate::hal::{pac, prelude::*};
 
-#[entry]
-fn main() -> ! {
-    if let (Some(dp), Some(cp)) = (
-        pac::Peripherals::take(),
-        cortex_m::peripheral::Peripherals::take(),
-    ) {
-        // Set up the LED. On the Nucleo-446RE it's connected to pin PA5.
-        let gpioa = dp.GPIOA.split();
-        let mut led = gpioa.pa5.into_push_pull_output();
+enum BlinkerState {
+    Off,
+    Right,
+    Left
+}
 
-        // Set up the system clock. We want to run at 48MHz for this one.
-        let rcc = dp.RCC.constrain();
-        let clocks = rcc.cfgr.sysclk(48.MHz()).freeze();
+enum LightsState {
+    Off,
+    Code,
+    Full
+}
 
-        // Create a delay abstraction based on SysTick
-        let mut delay = cp.SYST.delay(&clocks);
+pub struct ControlData {
+    blinker: BlinkerState,
+    lights: LightsState,
+    auto: bool
+}
 
-        loop {
-            // On for 1s, off for 1s.
-            led.toggle();
-            delay.delay_ms(1000_u32);
+impl ControlData {
+    pub fn new(auto_enabled: bool) -> Self {
+        Self {
+            blinker: Off,
+            lights: Off,
+            auto: auto_enabled
         }
     }
 
-    loop {}
+    pub fn set_blinker(&mut self, value: BlinkerState) {
+        self.blinker = value;
+    }
+
+    pub fn set_lights(&mut self, value: LightsState) {
+        self.lights = value;
+    }
+
+    pub fn set_auto(&mut self, value: bool) {
+        self.blinker = value;
+    }
+
+    pub fn to_byte(&self) -> u8 {
+        let mut byte = 0u8;
+
+        match self.blinker {
+            Off => byte &= !0b11,
+            Right => {
+                byte &= !(1<<0);
+                byte |= 1<<1;
+            },
+            Left => {
+                byte &= !(1<<1);
+                byte |= 1<<0;
+            }
+        }
+
+        if self.lights == Off {
+            byte &= !(1<<3);
+        }
+        else {
+            byte |= 1<<3;
+        }
+
+        match self.lights {
+            Code => byte &= !(1<<2),
+            Full => byte |= 1<<2,
+            _ => ()
+        }
+
+        return byte;
+    }
 }
+
+pub static CONTROLS: Mutex<RefCell<ControlData>> = Mutex::new(
+    RefCell::new(
+        ControlData::new(false)
+        )
+    );

@@ -13,29 +13,19 @@ use stm32f4xx_hal as hal;
 
 use crate::hal::{pac, prelude::*};
 
+mod acquisition;
+mod data_transfer;
+
+fn init_input() -> pac::Peripherals {
+    let dp = pac::Peripherals::take()
+        .expect("Peripherals unavailable");
+    data_transfer::init(&dp);
+    acquisition::init(&dp);
+    return dp;
+}
+
 #[entry]
 fn main() -> ! {
-    if let (Some(dp), Some(cp)) = (
-        pac::Peripherals::take(),
-        cortex_m::peripheral::Peripherals::take(),
-    ) {
-        // Set up the LED. On the Nucleo-446RE it's connected to pin PA5.
-        let gpioa = dp.GPIOA.split();
-        let mut led = gpioa.pa5.into_push_pull_output();
-
-        // Set up the system clock. We want to run at 48MHz for this one.
-        let rcc = dp.RCC.constrain();
-        let clocks = rcc.cfgr.sysclk(48.MHz()).freeze();
-
-        // Create a delay abstraction based on SysTick
-        let mut delay = cp.SYST.delay(&clocks);
-
-        loop {
-            // On for 1s, off for 1s.
-            led.toggle();
-            delay.delay_ms(1000_u32);
-        }
-    }
-
+    let dp = init_input();
     loop {}
 }
