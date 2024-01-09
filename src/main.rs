@@ -16,16 +16,11 @@ use crate::hal::pac;
 mod acquisition;
 mod data_transfer;
 
-// fn init(dp: &mut Peripherals) {
-//     data_transfer::init(dp);
-//     acquisition::init(dp);
-// }
-
 #[entry]
 fn main() -> ! {
-    let dp = pac::Peripherals::take().expect("Peripherals unavailable");
-    // init(&mut dp);
+    let mut dp = pac::Peripherals::take().expect("Peripherals unavailable");
 
+    acquisition::init(dp.GPIOC, dp.SYSCFG, &mut dp.EXTI);
     data_transfer::init(dp.GPIOA, dp.RCC, dp.USART2);
 
     loop {}
