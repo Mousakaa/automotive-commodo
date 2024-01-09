@@ -2,23 +2,25 @@
 
 #![deny(unsafe_code)]
 #![allow(clippy::empty_loop)]
-#![no_main]
-#![no_std]
 
 // Halt on panic
 use panic_halt as _; // panic handler
 
-use cortex_m_rt::entry;
+use cortex_m::interrupt::Mutex;
 use stm32f4xx_hal as hal;
 
 use crate::hal::{pac, prelude::*};
 
+use core::cell::RefCell;
+
+#[derive(PartialEq, Eq)]
 enum BlinkerState {
     Off,
     Right,
     Left
 }
 
+#[derive(PartialEq, Eq)]
 enum LightsState {
     Off,
     Code,
@@ -34,8 +36,8 @@ pub struct ControlData {
 impl ControlData {
     pub fn new(auto_enabled: bool) -> Self {
         Self {
-            blinker: Off,
-            lights: Off,
+            blinker: BlinkerState::Off,
+            lights: LightsState::Off,
             auto: auto_enabled
         }
     }
@@ -49,7 +51,7 @@ impl ControlData {
     }
 
     pub fn set_auto(&mut self, value: bool) {
-        self.blinker = value;
+        self.auto = value;
     }
 
     pub fn to_byte(&self) -> u8 {
@@ -67,7 +69,7 @@ impl ControlData {
             }
         }
 
-        if self.lights == Off {
+        if self.lights == LightsState::Off {
             byte &= !(1<<3);
         }
         else {
@@ -89,3 +91,6 @@ pub static CONTROLS: Mutex<RefCell<ControlData>> = Mutex::new(
         ControlData::new(false)
         )
     );
+
+pub fn init(dp: &pac::Peripherals) {
+}
