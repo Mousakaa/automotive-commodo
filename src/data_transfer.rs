@@ -1,7 +1,6 @@
 use crate::hal::{
-    pac::{Peripherals, GPIOA, RCC, USART2},
+    pac::{GPIOA, RCC, USART2},
     prelude::*,
-    rcc::Clocks,
     serial::{self, Config, Tx},
 };
 use core::{cell::RefCell, fmt::Write};
