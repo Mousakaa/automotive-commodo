@@ -15,12 +15,9 @@ use core::cell::RefCell;
 static LB_SWITCH: Mutex<RefCell<Option<gpio::PC10<gpio::Input>>>> = Mutex::new(RefCell::new(None));
 static RB_SWITCH: Mutex<RefCell<Option<gpio::PC11<gpio::Input>>>> = Mutex::new(RefCell::new(None));
 static ON_SWITCH: Mutex<RefCell<Option<gpio::PC12<gpio::Input>>>> = Mutex::new(RefCell::new(None));
-static HIGH_SWITCH: Mutex<RefCell<Option<gpio::PC13<gpio::Input>>>> =
-    Mutex::new(RefCell::new(None));
-static AUTO_SWITCH: Mutex<RefCell<Option<gpio::PC14<gpio::Input>>>> =
-    Mutex::new(RefCell::new(None));
-static LIGHT_SENSOR: Mutex<RefCell<Option<gpio::PC15<gpio::Input>>>> =
-    Mutex::new(RefCell::new(None));
+static HIGH_SWITCH: Mutex<RefCell<Option<gpio::PC13<gpio::Input>>>> = Mutex::new(RefCell::new(None));
+static AUTO_SWITCH: Mutex<RefCell<Option<gpio::PC14<gpio::Input>>>> = Mutex::new(RefCell::new(None));
+static LIGHT_SENSOR: Mutex<RefCell<Option<gpio::PC15<gpio::Input>>>> = Mutex::new(RefCell::new(None));
 
 pub fn init(dp_gpioc: pac::GPIOC, dp_syscfg: pac::SYSCFG, exti: &mut pac::EXTI) {
     let gpioc = dp_gpioc.split();
@@ -51,7 +48,7 @@ pub fn init(dp_gpioc: pac::GPIOC, dp_syscfg: pac::SYSCFG, exti: &mut pac::EXTI) 
     lights_auto.enable_interrupt(exti);
     lights_auto.trigger_on_edge(exti, hal::gpio::Edge::RisingFalling);
 
-    let mut light_sensor = gpioc.pc15.into_pull_up_input();
+    let mut light_sensor = gpioc.pc15.into_floating_input();
     light_sensor.make_interrupt_source(&mut syscfg);
     light_sensor.enable_interrupt(exti);
     light_sensor.trigger_on_edge(exti, hal::gpio::Edge::RisingFalling);
