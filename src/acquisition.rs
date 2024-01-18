@@ -110,9 +110,9 @@ pub fn send_byte(cs: &CriticalSection) -> u8 {
         .as_ref()
         .expect("Light sensor uninitialized");
 
-    left_blinker.is_high() as u8                                                  // Left blinker value
-        | ((right_blinker.is_high() as u8) << 1)                                  // Right blinker value
-        | ((on_switch.is_high()                                                   // Switch lights on or off
-            || (auto_switch.is_high() && light_sensor.is_low())) as u8)  << 2     // Even in auto mode
-        | ((high_switch.is_high() as u8) << 3) // High or low beam lights
+    left_blinker.is_low() as u8                                                  // Left blinker value
+        | ((right_blinker.is_low() as u8) << 1)                                  // Right blinker value
+        | ((on_switch.is_low()                                                   // Switch lights on or off
+            || (auto_switch.is_low() && light_sensor.is_low())) as u8)  << 2     // Even in auto mode
+        | ((high_switch.is_low() as u8) << 3) // High or low beam lights
 }
