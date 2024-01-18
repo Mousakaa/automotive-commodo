@@ -12,15 +12,14 @@ use cortex_m::interrupt::free;
 use cortex_m_rt::entry;
 use stm32f4xx_hal as hal;
 
-use crate::hal::{pac, interrupt};
+use crate::hal::{interrupt, pac};
 
 mod acquisition;
 mod data_transfer;
 
 #[entry]
 fn main() -> ! {
-    let mut dp = pac::Peripherals::take()
-        .expect("Peripherals unavailable");
+    let mut dp = pac::Peripherals::take().expect("Peripherals unavailable");
 
     acquisition::init(dp.GPIOC, dp.SYSCFG, &mut dp.EXTI);
     data_transfer::init(dp.GPIOA, dp.RCC, dp.USART2);
@@ -31,8 +30,6 @@ fn main() -> ! {
 #[interrupt]
 fn EXTI15_10() {
     free(|cs| {
-        data_transfer::transfer_data(
-            acquisition::send_byte(cs)
-        );
+        data_transfer::transfer_data(acquisition::send_byte(cs));
     });
 }
