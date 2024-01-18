@@ -9,8 +9,8 @@ lto = true      # Link-time-optimizations for further size reduction
 
 [dependencies]
 cortex-m = "0.7.7"
-cortex-m-rt = "0.7.3"
+cortex-m-rt = "0.6"
 embedded-hal = "0.2.7"
 panic-halt = "0.2.0"
-stm32f4xx-hal = { version = "0.18.0", features = ["rt", "stm32f401", "gpio-f401"] }
+stm32l1xx-hal = { version = "0.1.0", default-features = false, features = ["stm32l152", "rt"] }
 uart = "0.1.2"

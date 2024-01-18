@@ -10,7 +10,7 @@ use panic_halt as _; // panic handler
 
 use cortex_m::interrupt::free;
 use cortex_m_rt::entry;
-use stm32f4xx_hal as hal;
+use stm32l1xx_hal as hal;
 
 use crate::hal::{interrupt, pac};
 
