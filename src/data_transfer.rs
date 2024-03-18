@@ -1,33 +1,37 @@
 use crate::hal::{
-    pac::{GPIOA, RCC, USART2},
     prelude::*,
-    serial::{self, Config, Tx},
+    rcc,
+    serial::{self, Tx},
+    stm32::{GPIOA, RCC, USART2},
 };
 use core::{cell::RefCell, fmt::Write};
 use cortex_m::interrupt::{free, Mutex};
+use stm32l1xx_hal::serial::SerialExt;
 
-static UART_TX: Mutex<RefCell<Option<Tx<USART2, u8>>>> = Mutex::new(RefCell::new(None));
+static UART_TX: Mutex<RefCell<Option<Tx<USART2>>>> = Mutex::new(RefCell::new(None));
 
 pub fn init(gpioa: GPIOA, rcc: RCC, usart2: USART2) {
     let gpioa = gpioa.split();
 
-    let tx_pin = gpioa.pa2.into_alternate();
+    let tx_pin = gpioa.pa2;
+    let rx_pin = gpioa.pa3;
 
-    let rcc = rcc.constrain();
-    let clocks = rcc.cfgr.use_hse(8.MHz()).freeze();
+    let mut rcc = rcc.freeze(rcc::Config::hsi());
 
-    let tx: serial::Tx<USART2, u8> = usart2
-        .tx(
-            tx_pin,
-            Config::default()
+    let serial = usart2
+        .usart(
+            (tx_pin, rx_pin),
+            serial::Config::default()
                 .baudrate(115200.bps())
                 .wordlength_8()
                 .parity_none(),
-            &clocks,
+            &mut rcc,
         )
-        .unwrap();
+        .expect("Couldnt initialize USART2");
 
-    free(|cs| *UART_TX.borrow(cs).borrow_mut() = Some(tx));
+    let (tx, _) = serial.split();
+
+    free(|cs| UART_TX.borrow(cs).replace(Some(tx)));
 }
 
 pub fn transfer_data(data: u8) {
