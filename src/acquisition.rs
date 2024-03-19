@@ -23,9 +23,9 @@ static ON_SWITCH: Mutex<RefCell<Option<gpioc::PC12<Input<PullUp>>>>> =
     Mutex::new(RefCell::new(None));
 static HIGH_SWITCH: Mutex<RefCell<Option<gpioc::PC13<Input<PullUp>>>>> =
     Mutex::new(RefCell::new(None));
-static AUTO_SWITCH: Mutex<RefCell<Option<gpioc::PC14<Input<PullUp>>>>> =
+static AUTO_SWITCH: Mutex<RefCell<Option<gpioc::PC9<Input<PullUp>>>>> =
     Mutex::new(RefCell::new(None));
-static LIGHT_SENSOR: Mutex<RefCell<Option<gpioc::PC15<Input<Floating>>>>> =
+static LIGHT_SENSOR: Mutex<RefCell<Option<gpioc::PC7<Input<Floating>>>>> =
     Mutex::new(RefCell::new(None));
 
 pub fn init(dp_gpioc: GPIOC) {
@@ -35,8 +35,8 @@ pub fn init(dp_gpioc: GPIOC) {
     let right_blink = gpioc.pc11.into_pull_up_input();
     let lights_on = gpioc.pc12.into_pull_up_input();
     let lights_high = gpioc.pc13.into_pull_up_input();
-    let lights_auto = gpioc.pc14.into_pull_up_input();
-    let light_sensor = gpioc.pc15.into_floating_input();
+    let lights_auto = gpioc.pc9.into_pull_up_input();
+    let light_sensor = gpioc.pc7.into_floating_input();
 
     free(|cs| {
         LB_SWITCH.borrow(cs).replace(Some(left_blink));
