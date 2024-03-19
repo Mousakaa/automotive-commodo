@@ -14,11 +14,15 @@ use stm32l1xx_hal as hal;
 
 use hal::stm32::Peripherals;
 
+use rtt_target::{rprintln, rtt_init_print};
+
 mod acquisition;
 mod data_transfer;
 
 #[entry]
 fn main() -> ! {
+    rtt_init_print!();
+
     let dp = Peripherals::take().expect("Peripherals unavailable");
 
     acquisition::init(dp.GPIOC);
@@ -27,6 +31,8 @@ fn main() -> ! {
     let mut last_acquisition_data = 0;
 
     loop {
+        data_transfer::transfer_data(0b01010101);
+        rprintln!("test");
         free(|cs| {
             let data = acquisition::serialize(cs);
 
